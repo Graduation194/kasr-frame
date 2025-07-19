@@ -1,133 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Kasr Al Ainy Grad Frame</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload your photo with 194 Graduation Frame</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f9f9f9;
-      color: #222;
+      background-color: #f8faff;
+      color: #003366;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding: 30px;
+      margin: 0;
+      padding: 2rem;
     }
     h1 {
-      font-size: 32px;
-      color: #0066cc;
-      margin-bottom: 10px;
+      margin-bottom: 1.5rem;
     }
-    h1 span {
-      color: #222;
-      font-weight: bold;
+    #canvas-container {
+      margin: 1rem auto;
+      width: 768px;
+      height: 768px;
+      position: relative;
+      border: 2px solid #003366;
+      background-color: white;
     }
-    p.subtitle {
-      font-size: 16px;
-      color: #666;
-      margin-top: -10px;
+    #controls {
+      margin-top: 1.5rem;
     }
     input[type="file"] {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background-color: #fff;
-      margin-top: 20px;
-    }
-    canvas {
-      margin-top: 20px;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 1rem;
     }
     button {
-      margin-top: 20px;
-      padding: 12px 30px;
-      font-size: 16px;
-      background-color: #0066cc;
-      color: #fff;
+      background-color: #003366;
+      color: white;
+      padding: 0.75rem 1.5rem;
       border: none;
-      border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
+      border-radius: 5px;
     }
-    button:disabled {
-      background-color: #999;
-      cursor: not-allowed;
+    button:hover {
+      background-color: #0055aa;
     }
-    footer {
-      margin-top: 40px;
-      font-size: 14px;
-      color: #777;
+    .footer-text {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #333;
     }
   </style>
 </head>
 <body>
-
-  <h1>
-    🎓 Upload your photo with
-    <span>194 Graduation Frame</span>
-  </h1>
-  <p class="subtitle">Senior Class of Kasr Al Ainy – 2025</p>
-
-  <input type="file" id="upload" accept="image/*">
-  <br>
-
-  <canvas id="canvas" width="768" height="768"></canvas>
-  <br>
-
-  <button id="download" disabled>Download Final Image</button>
-
-  <footer>
-    Frame designed by <strong>Abdurrahman Mamdouh</strong>
-  </footer>
+  <h1>Upload your photo with 194 Graduation Frame</h1>
+  <div id="canvas-container">
+    <canvas id="canvas" width="768" height="768"></canvas>
+  </div>
+  <div id="controls">
+    <input type="file" id="upload" accept="image/*" />
+    <br />
+    <button id="download">Download</button>
+  </div>
+  <div class="footer-text">Frame designed by Abdurrahman Mamdouh</div>
 
   <script>
     const canvas = new fabric.Canvas('canvas', {
-      preserveObjectStacking: true
+      backgroundColor: '#fff',
     });
 
-    fabric.Image.fromURL('frame.png', function(frame) {
-      frame.set({
+    // Load frame on top
+    fabric.Image.fromURL('frame.png', function(img) {
+      img.set({
         selectable: false,
         evented: false,
+        left: 0,
+        top: 0,
         width: 768,
         height: 768,
-        left: 0,
-        top: 0
       });
-      canvas.add(frame);
-      canvas.bringToFront(frame);
-      document.getElementById('download').disabled = false;
+      canvas.frameImage = img;
+      canvas.add(img);
+      canvas.bringToFront(img);
     }, { crossOrigin: 'anonymous' });
 
+    // Upload photo
     document.getElementById('upload').addEventListener('change', function (e) {
       const reader = new FileReader();
       reader.onload = function (f) {
-        fabric.Image.fromURL(f.target.result, function (img) {
+        fabric.Image.fromURL(f.target.result, function(img) {
           img.set({
-            left: 100,
-            top: 100,
-            scaleX: 0.8,
-            scaleY: 0.8,
-            cornerSize: 10
+            left: 0,
+            top: 0,
+            scaleX: 768 / img.width,
+            scaleY: 768 / img.height,
+            hasControls: true,
           });
-          img.setControlsVisibility({ mtr: false });
+          img.set({
+            lockUniScaling: true,
+          });
+          canvas.clear();
           canvas.add(img);
-          canvas.sendToBack(img);
-        });
+          canvas.add(canvas.frameImage);
+          canvas.bringToFront(canvas.frameImage);
+        }, { crossOrigin: 'anonymous' });
       };
-      reader.readAsDataURL(this.files[0]);
+      reader.readAsDataURL(e.target.files[0]);
     });
 
-    document.getElementById('download').onclick = function () {
+    // Download result
+    document.getElementById('download').addEventListener('click', function () {
+      const dataURL = canvas.toDataURL({ format: 'png' });
       const link = document.createElement('a');
-      link.download = 'profile.png';
-      link.href = canvas.toDataURL({
-        format: 'png',
-        quality: 1
-      });
+      link.href = dataURL;
+      link.download = 'graduation_frame.png';
       link.click();
-    };
+    });
   </script>
-
 </body>
 </html>
