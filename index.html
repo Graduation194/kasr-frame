@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kasr Al Ainy Grad Frame</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      color: #222;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      font-size: 32px;
+      color: #0066cc;
+      margin-bottom: 10px;
+    }
+    h1 span {
+      color: #222;
+      font-weight: bold;
+    }
+    p.subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-top: -10px;
+    }
+    input[type="file"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+      margin-top: 20px;
+    }
+    canvas {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 16px;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>
+    🎓 Upload your photo with
+    <span>194 Graduation Frame</span>
+  </h1>
+  <p class="subtitle">Senior Class of Kasr Al Ainy – 2025</p>
+
+  <input type="file" id="upload" accept="image/*">
+  <br>
+
+  <canvas id="canvas" width="768" height="768"></canvas>
+  <br>
+
+  <button id="download" disabled>Download Final Image</button>
+
+  <footer>
+    Frame designed by <strong>Abdurrahman Mamdouh</strong>
+  </footer>
+
+  <script>
+    const canvas = new fabric.Canvas('canvas', {
+      preserveObjectStacking: true
+    });
+
+    fabric.Image.fromURL('frame.png', function(frame) {
+      frame.set({
+        selectable: false,
+        evented: false,
+        width: 768,
+        height: 768,
+        left: 0,
+        top: 0
+      });
+      canvas.add(frame);
+      canvas.bringToFront(frame);
+      document.getElementById('download').disabled = false;
+    }, { crossOrigin: 'anonymous' });
+
+    document.getElementById('upload').addEventListener('change', function (e) {
+      const reader = new FileReader();
+      reader.onload = function (f) {
+        fabric.Image.fromURL(f.target.result, function (img) {
+          img.set({
+            left: 100,
+            top: 100,
+            scaleX: 0.8,
+            scaleY: 0.8,
+            cornerSize: 10
+          });
+          img.setControlsVisibility({
+            mtr: false
+          });
+          canvas.add(img);
+          canvas.sendToBack(img);
+        });
+      };
+      reader.readAsDataURL(this.files[0]);
+    });
+
+    document.getElementById('download').onclick = function () {
+      const link = document.createElement('a');
+      link.download = 'profile.png';
+      link.href = canvas.toDataURL({
+        format: 'png',
+        quality: 1
+      });
+      link.click();
+    };
+  </script>
+
+</body>
+</html>
